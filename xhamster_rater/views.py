@@ -6,7 +6,7 @@ import string
 
 
 def index(request):
-    return HttpResponse(u"It works.")
+    return HttpResponse(u"Connected@" + request.META["HTTP_HOST"])
 
 
 def get_randomly(request):

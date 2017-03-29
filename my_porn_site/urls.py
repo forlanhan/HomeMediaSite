@@ -23,7 +23,5 @@ urlpatterns = [
     url(r'^rand_rate/', xhamster_rater_views.get_randomly),
     url(r'^reco_rate/', xhamster_rater_views.get_recommend),
     url(r'^view_videos/preview_gif/', porn_video_views.getPreviewImage),
-    url(r'^view_videos/video_pool/', porn_video_views.getVideo),
-    url(r'^view_videos/', porn_video_views.view_videos),
-
+    url(r'^view_videos/video_test/', porn_video_views.testViewVideo),
 ]
