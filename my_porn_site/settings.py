@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'xhamster_rater',
+    'porn_videos',
 ]
 
 MIDDLEWARE = [

@@ -62,6 +62,42 @@ def file_iterator(file_name, chunk_size=4096):
             else:
                 break
 
-def testViewVideo(request):
-    return render(request, "view_video.html", {"title": "Test Video"})
 
+def testViewVideo(request):
+    return render(request, "view_video.html", {
+        "title": "Test Video",
+        "videoInfoList": [
+            {
+                "previewUrl": "http://192.168.1.103/prev_1128.gif",
+                "mp4Url": "http://192.168.1.103/porv_1128.mp4",
+                "videoTitle": "VideoTest1",
+                "playTime": "10:25",
+                "resolution": "100×150",
+                "tagList": ["porn", "pussy wide"],
+            },
+            {
+                "previewUrl": "http://192.168.1.103/prev_1128.gif",
+                "mp4Url": "http://192.168.1.103/porv_1128.mp4",
+                "videoTitle": "VideoTest2",
+                "playTime": "10:25",
+                "resolution": "100×150",
+                "tagList": [
+                    "porn", "anal", "homemade", "porn", "anal", "homemade",
+                    "porn", "anal", "homemade", "porn", "anal", "homemade",
+                    "porn", "anal", "homemade", "porn", "anal", "homemade",
+                ],
+            },
+        ],"paginationList":[
+            {'url':"javascript:alert(1);", "text":1},
+            {'url': "javascript:alert(2);", "text": 2},
+            {'url': "javascript:alert(3);", "text": 3},
+        ]})
+
+
+def testIterator(request):
+    return render(request, "test_iterator.html",
+                  {"testList": [
+                      {'a': ['a', 'b', 'v'], 'b': 2},
+                      {'a': ['a1', 'b1', 'v1'], 'b': 2, "c": 'd'},
+                      {'a': ['a2', 'b', 'v'], 'b': 2, "c": 1},
+                  ]})
