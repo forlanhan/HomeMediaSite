@@ -8,7 +8,7 @@ def get_request_get(request, key):
         return None
 
 
-def get_request_get(request, key, default_value):
+def get_request_get_default(request, key, default_value):
     try:
         return request.GET[key]
     except:

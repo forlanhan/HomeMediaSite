@@ -1,5 +1,7 @@
-preview_dir = "D:/HTTP_DIR/gif_preview/"
-preview_file = "prev_%s.gif"
+preview_dir = "http://192.168.1.103/external/gif_preview/"
+preview_file = "prev_%d.gif"
 
-pvideo_dir = "D:/HTTP_DIR/video_pool/"
-pvideo_file = "porv_%s.mp4"
+pvideo_dir = "http://192.168.1.103/external/video_pool/"
+pvideo_file = "porv_%d.mp4"
+
+default_pagesize = "12"
