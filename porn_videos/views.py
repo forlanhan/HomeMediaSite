@@ -3,6 +3,7 @@ import os
 import re
 import string
 import mimetypes
+
 from django.http import HttpResponse
 from util.httputils import *
 from util.db import *
@@ -26,7 +27,33 @@ def view_videos(request):
             """
             标记为Like的视频
             """
-            pass
+            offset = (pageid - 1) * pagesize
+            sql_query = """
+                        SELECT  index, tags, basic_info, like_it 
+                        FROM public.video_basic_info 
+                        WHERE like_it>0
+                        ORDER BY index desc 
+                        LIMIT %d 
+                        OFFSET %d
+                        """ % (pagesize, offset)
+            queryResult = queryInfoNewConn(sql_query)
+            renderInfo = generateRenderStruct(queryResult)
+            # 翻页显示控制
+            if pageid > 0:
+                renderInfo["paginationList"].append({
+                    'url': "./?query=%s&pageid=%d" % (query, 0),
+                    "text": "<<"
+                })
+                renderInfo["paginationList"].append({
+                    'url': "./?query=%s&pageid=%d" % (query, (pageid - 1)),
+                    "text": "<"
+                })
+            renderInfo["paginationList"].append({
+                'url': "./?query=%s&pageid=%d" % (query, (pageid + 1)),
+                "text": ">"
+            })
+            return render(request, "view_video.html", renderInfo)
+
         elif query is not None and new != "1" and ID is None:
             """
             搜索视频
@@ -165,7 +192,7 @@ def testIterator(request):
 
 
 def generateRenderStruct(queryResult):
-    renderInfo = {"title": "最新视频", "paginationList": [], "videoInfoList": []}
+    renderInfo = {"title": "Video System", "paginationList": [], "videoInfoList": []}
     for resRow in queryResult:
         id = resRow[0]
         basicInfo = resRow[2]
