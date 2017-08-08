@@ -1,7 +1,7 @@
 """my_porn_site URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.10/topics/http/urls/
+    https://docs.djangoproject.com/en/1.11/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -15,16 +15,26 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from xhamster_rater import views as xhamster_rater_views
-from porn_videos import views as porn_video_views
+
+from api.views import *
+from bgtasks.views import *
+from page_render.views import *
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', xhamster_rater_views.index),
-    url(r'^rand_rate/', xhamster_rater_views.get_randomly),
-    url(r'^reco_rate/', xhamster_rater_views.get_recommend),
 
-    url(r'^view_videos/preview_gif/', porn_video_views.getPreviewImage),
-    url(r'^view_videos/video_test/', porn_video_views.testViewVideo),
-    url(r'^view_videos/', porn_video_views.view_videos),
-    url(r'^test_iterator/', porn_video_views.testIterator),
+    url(r'^get/images/', get_image_list),
+    url(r'^get/novel/', get_novel),
+
+    url(r'^query/novel/bytitle', query_novel_by_title),
+    url(r'^query/video/bytitle', query_video_list),
+
+    url(r'^query/task/all', query_tasks),
+
+    url(r'^view/query/novel', render_query_novel),
+    url(r'^view/novel', render_novel_reader),
+
+    url(r'^append/task', append_task),
+    url(r'^remove/task', remove_task),
+    url(r'^manage/tasks', render_task_manage_page),
 ]
