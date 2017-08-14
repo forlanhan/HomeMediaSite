@@ -3,9 +3,11 @@ from django.views.decorators.csrf import csrf_exempt
 from util.http import response_json
 from util.pyurllib import DownloadTask
 import time
-import types
 
-supported_task_type = ("download_file", "download_xvideo",)
+from util.xhamster import xHamsterDownloadTask
+from util.xvideos import XVideoDownloadTask
+
+supported_task_type = {"download_file", "download_xvideo", "download_xhamster"}
 task_list = {}
 check_min_interval = 0.5
 
@@ -27,15 +29,17 @@ def append_task(request):
     task_type = request.POST["task_type"]
     assert task_type in supported_task_type, "Unsupported task type"
     parameter = request.POST["param"]
+    key = generate_a_key()
     if task_type == "download_xvideo":
-        pass
+        task_append = XVideoDownloadTask(parameter, key)
+    elif task_type == "download_xhamster":
+        task_append = xHamsterDownloadTask(parameter, key)
     elif task_type == "download_file":
-        key = generate_a_key()
         task_append = DownloadTask(parameter, "buffer/%X" % key)
-        task_list[key] = task_append
-        task_append.start()
     else:
         raise Exception("Unsupported task type (Fatal)")
+    task_list[key] = task_append
+    task_append.start()
     return {"status": "success"}
 
 
@@ -58,12 +62,12 @@ def remove_task(request):
 @response_json
 def query_tasks(request):
     return_data = [{
-        "id": key,
-        "name": task_list[key].getName(),
-        "type": str(type(task_list[key])),
-        "progress": task_list[key].progress,
-        "info": task_list[key].progress_info
-    } for key in task_list.keys()]
+                       "id": key,
+                       "name": task_list[key].getName(),
+                       "type": str(type(task_list[key])),
+                       "progress": task_list[key].progress,
+                       "info": task_list[key].progress_info
+                   } for key in task_list.keys()]
     clear_invalid_tasks()
     return return_data
 

@@ -11,12 +11,18 @@ import string
 import urllib
 import urllib2
 import re
-
+import logging
 import math
 from bs4 import BeautifulSoup
 import threading
 
 from util import BackgroundTask
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                    datefmt='%a, %d %b %Y %H:%M:%S',
+                    filename='log/pyurllib.log',
+                    filemode='w')
 
 # 请求超时设置
 request_timeout = 25
@@ -141,7 +147,7 @@ class LiteDataDownloader(threading.Thread):
                 fid.write(self.data)
 
 
-class DownloadTask(BackgroundTask):
+class BrowserDownloadTask(BackgroundTask):
     def __init__(self, url, filename, progress_callback=lambda value: None, block_size=1024 * 1024):
         BackgroundTask.__init__(self, name="download:" + filename)
         self.set_parent_progress = progress_callback
@@ -151,24 +157,49 @@ class DownloadTask(BackgroundTask):
 
     def run(self):
         self.progress_info = "获取请求中..."
+        logging.debug("Requiring request...")
         response = urllib2.urlopen(get_request(self.target_url), None, request_timeout)
         try:
             file_size = string.atoi(response.headers.get('content-length'))
+            logging.debug("Getting file size successfully: %d bytes", file_size)
         except:
             file_size = None
+            logging.warn("Getting file size failed")
         with open(self.save_file, "wb") as fp:
             if file_size is None:
                 self.progress_info = "正在下载小文件..."
+                logging.debug("Downloading response file")
                 self.progress = 0
                 fp.write(response.read())
                 self.progress = 100
             else:
                 self.progress_info = "大文件下载中..."
+                logging.debug("Downloading large file")
                 self.progress = 0
                 block_count = int(math.ceil(file_size * 1.0 / self.block_size))
                 for i in range(block_count):
+                    logging.debug("Downloading:%d of %d" % (i + 1, block_count))
                     fp.write(response.read(self.block_size))
                     # fp.flush() # 手动刷新
                     self.progress = (i + 1) * 100.0 / block_count
 
         self.terminated = True
+
+
+class DownloadTask(BackgroundTask):
+    def __init__(self, url, filename, progress_callback=lambda value: None):
+        BackgroundTask.__init__(self, name="download:" + filename)
+        self.set_parent_progress = progress_callback
+        self.target_url = url
+        self.save_file = filename
+
+    def set_progress(self, value):
+        self.progress = value
+        self.set_parent_progress(value)
+
+    def run(self):
+        urllib.urlretrieve(
+            url=self.target_url,
+            filename=self.save_file,
+            reporthook=lambda a, b, c: self.set_progress(a * b * 100.0 / c)
+        )

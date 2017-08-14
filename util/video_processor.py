@@ -3,6 +3,7 @@ import images2gif
 import math
 from PIL import Image
 
+
 def get_video_cap(video_file_name):
     video_cap = cv2.VideoCapture()
     assert video_cap.open(video_file_name), "Fail to open video."
@@ -22,6 +23,7 @@ def get_video_basic_info(video_cap):
     vbi["frame_count"] = video_cap.get(cv2.CAP_PROP_FRAME_COUNT)
     vbi["constant_time"] = vbi["frame_count"] * 1.0 / vbi["frame_rate"]
     return vbi
+
 
 def get_video_preview(video_cap, file_name="out.gif", img_count=15, duration=0.5):
     """

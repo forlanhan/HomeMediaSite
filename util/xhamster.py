@@ -4,13 +4,12 @@
 Created on 2017-3-2
 @author: Yuan Yi fan
 """
-import re
-
+import logging
 import math
 
 import time
 import video_processor
-from bdata.porn.xvideos import *
+from bdata.porn.xhamster import *
 from util.pyurllib import  DownloadTask
 from util import BackgroundTask
 
@@ -18,7 +17,7 @@ video_temp = "buffer/video_temp_%X.mp4"
 shortcuts_temp = "buffer/shortcuts_temp_%X.gif"
 
 
-class XVideoDownloadTask(BackgroundTask):
+class xHamsterDownloadTask(BackgroundTask):
     def set_progress(self, value):
         self.progress = value
 
@@ -33,13 +32,14 @@ class XVideoDownloadTask(BackgroundTask):
     def run(self):
         self.progress = 0
         self.progress_info = "Started, querying page data..."
-        page_data = get_data(self.page_url)
+        page_data, page_soup = getSoup(self.page_url)
 
         self.progress = 10
         self.progress_info = "Got page data, analysing...."
-        page_soup = BeautifulSoup(page_data, XML_DECODER)
-        mp4url = get_mp4_url(page_data)
-        title = get_title(page_soup)
+
+        mp4url = getDownloadLink(page_soup)
+        title = getTitleFromSoup(page_soup)
+        labels = getCategories(page_soup)
         save_filename = video_temp % self.key
 
         self.progress = 15

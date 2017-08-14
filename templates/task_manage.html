@@ -25,6 +25,7 @@
                         alert("任务添加成功");
                     } else {
                         alert("任务添加失败");
+                        console.error(data);
                     }
                     refreshList();
                 }
@@ -87,7 +88,7 @@
             )
         }
 
-        setInterval(refreshList, 2000);
+        // setInterval(refreshList, 2000);
     </script>
 </head>
 <body>
@@ -112,6 +113,7 @@
                             <select type="text" class="form-control" id="select_task_type">
                                 <option value="download_file">下载文件</option>
                                 <option value="download_xvideo">下载XVIDEO文件</option>
+                                <option value="download_xhamster">下载XHamster文件</option>
                             </select>
                             <input type="text" class="form-control" id="parameter" onkeypress="appendTask()"/>
                         </div>
