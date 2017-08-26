@@ -18,12 +18,6 @@ import threading
 
 from util import BackgroundTask
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
-                    datefmt='%a, %d %b %Y %H:%M:%S',
-                    filename='log/pyurllib.log',
-                    filemode='w')
-
 # 请求超时设置
 request_timeout = 25
 

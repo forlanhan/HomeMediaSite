@@ -25,6 +25,7 @@
                         alert("任务添加成功");
                     } else {
                         alert("任务添加失败");
+                        console.error("Failed to append task");
                         console.error(data);
                     }
                     refreshList();
@@ -34,9 +35,9 @@
 
         function deleteTask(task_id) {
             $.post(
-                "/remove/task",{
-                    task_key:task_id
-                },(response)=>{
+                "/remove/task", {
+                    task_key: task_id
+                }, (response) => {
                     console.log("Delete operation response:" + response);
                     refreshList();
                 }
@@ -54,7 +55,7 @@
                     let task_list = $("#task_list");
                     task_list.empty();
                     data.forEach((info) => {
-                        let progress = leave_point(info.progress,100);
+                        let progress = leave_point(info.progress, 100);
 
                         let progress_bar = $("<div></div>").attr({
                             "class": "progress-bar",
@@ -70,7 +71,7 @@
                                 $("<td></td>").text(info.name)
                             ).append(
                                 $("<td></td>").html($("<div></div>").attr({
-                                    "class":"progress"
+                                    "class": "progress"
                                 }).append(progress_bar))
                             ).append(
                                 $("<td></td>").text("Info:" + info.info)
@@ -87,8 +88,7 @@
                 }
             )
         }
-
-        // setInterval(refreshList, 2000);
+        setInterval(refreshList, 700);
     </script>
 </head>
 <body>
@@ -111,9 +111,10 @@
                     <form class="navbar-form navbar-left" onkeypress="click_first_page()" onsubmit="return false">
                         <div class="form-group">
                             <select type="text" class="form-control" id="select_task_type">
+                                <option value="download_xhamster">XHamster</option>
                                 <option value="download_file">下载文件</option>
-                                <option value="download_xvideo">下载XVIDEO文件</option>
-                                <option value="download_xhamster">下载XHamster文件</option>
+                                <option value="download_xvideo">XVideo</option>
+
                             </select>
                             <input type="text" class="form-control" id="parameter" onkeypress="appendTask()"/>
                         </div>

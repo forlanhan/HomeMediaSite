@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class BgtasksConfig(AppConfig):
-    name = 'bgtasks'
+    name = 'task_manager'

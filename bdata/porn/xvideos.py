@@ -55,6 +55,5 @@ def auto_process_urls(urls, save_path):
             download_thread.start()
         except Exception as ex:
             print "Error while appending task:", ex
-
     for process in process_list:
         process.join()

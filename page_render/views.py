@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
-from api.views import get_novel_object
+from util.http import get_request_with_default
 
 
 def render_query_novel(request):
@@ -8,20 +8,29 @@ def render_query_novel(request):
 
 
 def render_novel_reader(request):
-    novel_info = get_novel_object(request)
-    novel_text = novel_info["novel_text"].replace(r"　", " ")
-    lastSize = len(novel_text)
-    while (True):
-        novel_text = novel_text.replace("   ", "  ")
-        if len(novel_text) == lastSize:
-            break
-        else:
-            lastSize = len(novel_text)
     return render(request, "read_novel.html", {
-        "title": novel_info["title"],
-        "text": novel_text.replace("  ", "\n")
+        "novel_id": request.GET["id"]
     })
 
 
 def render_task_manage_page(request):
     return render(request, "task_manage.html")
+
+
+def render_query_video(request):
+    return render(request, "query_video.html")
+
+
+def render_query_images(request):
+    return render(request, "query_images.html")
+
+
+def render_view_images(request):
+    return render(request, "view_images.html", {
+        "images_id": request.GET["id"],
+        "query_key_words": get_request_with_default(request, "key_words", "")
+    })
+
+
+def render_index_page(request):
+    return render(request, "index.html")

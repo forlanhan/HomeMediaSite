@@ -1,6 +1,8 @@
 import time
 import threading
 from abc import abstractmethod
+import logging
+
 
 class BackgroundTask(threading.Thread):
     def __init__(self,
@@ -9,11 +11,20 @@ class BackgroundTask(threading.Thread):
                  set_parent_progress=lambda p: None):
         threading.Thread.__init__(self, name="task_" + name)
         self.progress_value = 0
-        self.progress_info = ""
+        self.progress_info_value = ""
         self.start_tick = time.time()
         self.timeout = timeout
         self.set_parent_progress = set_parent_progress
         self.terminated = False
+
+    @property
+    def progress_info(self):
+        return self.progress_info_value
+
+    @progress_info.setter
+    def progress_info(self, value):
+        logging.debug("Task info changed:" + str(value))
+        self.progress_info_value = value
 
     @property
     def progress(self):

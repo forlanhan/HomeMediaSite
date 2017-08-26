@@ -52,7 +52,7 @@ def remove_task(request):
     :return: 
     """
     task_key = string.atoi(request.POST["task_key"])
-    if task_list.has_key(task_key):
+    if task_key in task_list:
         task_list.pop(task_key)
         return {"status": "success"}
     else:

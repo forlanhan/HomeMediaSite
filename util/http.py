@@ -1,10 +1,10 @@
 # noinspection PyBroadException
 import json
 import traceback
-
 from django.http import HttpResponse
 
 
+# noinspection PyBroadException
 def get_request_with_default(request, key, default_value):
     """
     Try to get value by specific key in request object, if can't find key in keySet, return default value.

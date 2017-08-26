@@ -9,9 +9,14 @@ import re
 import math
 
 import time
+
+import shutil
+
 import video_processor
 from bdata.porn.xvideos import *
-from util.pyurllib import  DownloadTask
+from config import shortcuts_saving_path, video_saving_path
+from util.connections import generate_mongodb_connection
+from util.pyurllib import DownloadTask
 from util import BackgroundTask
 
 video_temp = "buffer/video_temp_%X.mp4"
@@ -40,8 +45,10 @@ class XVideoDownloadTask(BackgroundTask):
         page_soup = BeautifulSoup(page_data, XML_DECODER)
         mp4url = get_mp4_url(page_data)
         title = get_title(page_soup)
+        labels = get_keyword(page_soup)
         save_filename = video_temp % self.key
 
+        # Common operations
         self.progress = 15
         self.progress_info = "Downloading video ..."
         task = DownloadTask(mp4url, save_filename, lambda value: self.set_progress(value * 0.65 + 15))
@@ -53,11 +60,29 @@ class XVideoDownloadTask(BackgroundTask):
         vcap = video_processor.get_video_cap(save_filename)
         video_basic_info = video_processor.get_video_basic_info(vcap)
         video_processor.get_video_preview(vcap, file_name=shortcuts_temp % self.key)
+        vcap.release()
 
         self.progress = 95
         self.progress_info = "Inserting to database ..."
-        # TODO: Copy files to target and insert info to mongodb
-        print video_basic_info
+
+        video_basic_info["name"] = title
+        video_basic_info["tags"] = labels
+        video_basic_info["source"] = {
+            "url": self.page_url,
+            "type": "m.xhamster.com"
+        }
+        video_basic_info["like"] = False
+        conn = generate_mongodb_connection()
+
+        collection = conn.get_database("website_pron").get_collection("video_info")
+
+        index = collection.find({}, {"_id": 1}).sort("_id", -1).next()["_id"] + 1
+        video_basic_info["_id"] = index
+        collection.insert_one(video_basic_info)
+        conn.close()
+
+        shutil.move(shortcuts_temp % self.key, shortcuts_saving_path % index)
+        shutil.move(video_temp % self.key, video_saving_path % index)
 
         self.progress = 100
         self.terminated = True

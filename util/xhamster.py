@@ -4,20 +4,21 @@
 Created on 2017-3-2
 @author: Yuan Yi fan
 """
-import logging
 import math
-
 import time
+import shutil
 import video_processor
 from bdata.porn.xhamster import *
-from util.pyurllib import  DownloadTask
+from util.pyurllib import DownloadTask
 from util import BackgroundTask
+from util import connections
 
-video_temp = "buffer/video_temp_%X.mp4"
-shortcuts_temp = "buffer/shortcuts_temp_%X.gif"
+
+from config import shortcuts_temp, video_temp, video_saving_path, shortcuts_saving_path
 
 
 class xHamsterDownloadTask(BackgroundTask):
+
     def set_progress(self, value):
         self.progress = value
 
@@ -37,11 +38,13 @@ class xHamsterDownloadTask(BackgroundTask):
         self.progress = 10
         self.progress_info = "Got page data, analysing...."
 
+        # Get video basic info from web
         mp4url = getDownloadLink(page_soup)
         title = getTitleFromSoup(page_soup)
         labels = getCategories(page_soup)
         save_filename = video_temp % self.key
 
+        # Common operations
         self.progress = 15
         self.progress_info = "Downloading video ..."
         task = DownloadTask(mp4url, save_filename, lambda value: self.set_progress(value * 0.65 + 15))
@@ -53,11 +56,29 @@ class xHamsterDownloadTask(BackgroundTask):
         vcap = video_processor.get_video_cap(save_filename)
         video_basic_info = video_processor.get_video_basic_info(vcap)
         video_processor.get_video_preview(vcap, file_name=shortcuts_temp % self.key)
+        vcap.release()
 
         self.progress = 95
         self.progress_info = "Inserting to database ..."
-        # TODO: Copy files to target and insert info to mongodb
-        print video_basic_info
+
+        video_basic_info["name"] = title
+        video_basic_info["tags"] = labels
+        video_basic_info["source"] = {
+            "url": self.page_url,
+            "type": "m.xhamster.com"
+        }
+        video_basic_info["like"] = False
+        conn = connections.generate_mongodb_connection()
+
+        collection = conn.get_database("website_pron").get_collection("video_info")
+
+        index = collection.find({}, {"_id": 1}).sort("_id", -1).next()["_id"] + 1
+        video_basic_info["_id"] = index
+        collection.insert_one(video_basic_info)
+        conn.close()
+
+        shutil.move(shortcuts_temp % self.key, shortcuts_saving_path % index)
+        shutil.move(video_temp % self.key, video_saving_path % index)
 
         self.progress = 100
         self.terminated = True
